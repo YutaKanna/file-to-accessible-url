@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ローカルファイルのURL変換</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <input type="file" ref="fileInput" @change="uploadFile">
+    <div v-if="uploadedFile">
+      <p>ファイル名: {{ uploadedFile.name }}</p>
+      <p>サイズ: {{ uploadedFile.size }} bytes</p>
+      <p>アップロードされたURL:</p>
+      <a :href="uploadedFile.url" target="_blank">{{ uploadedFile.url }}</a>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        uploadedFile: null
+      },
+      methods: {
+        uploadFile() {
+          const file = this.$refs.fileInput.files[0];
+          const formData = new FormData();
+          formData.append('file', file);
+
+          axios.post('/upload', formData)
+            .then(response => {
+              const data = response.data;
+              this.uploadedFile = {
+                name: file.name,
+                size: file.size,
+                url: data.url
+              };
+            })
+            .catch(error => {
+              console.error('アップロードエラー:', error);
+            });
+        }
+      }
+    });
+  </script>
+</body>
+</html>
